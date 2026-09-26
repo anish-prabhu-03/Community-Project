@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CyberSafe // Know It. Spot It. Stop It.</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #05070c;
+    --bg-2: #0a0e18;
+    --panel: #0d1220;
+    --panel-2: #101728;
+    --line: #1c2740;
+    --cyan: #29f7ff;
+    --cyan-dim: #14a3ac;
+    --magenta: #ff2e9a;
+    --violet: #9d4edd;
+    --amber: #ffb703;
+    --text: #dce8f5;
+    --text-dim: #7d8aa3;
+    --danger: #ff4d6d;
+    --safe: #4dffb4;
+    --radius: 14px;
+    --maxw: 1120px;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *,*::before,*::after{ box-sizing: inherit; }
+  html{ scroll-behavior: smooth; scroll-padding-top: calc(78px + env(safe-area-inset-top, 0px)); }
+  html,body{ height:auto; margin:0; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  ::selection{ background: var(--cyan); color: #04121a; }
+  a{ color: inherit; }
+  img{ max-width:100%; }
+
+  h1,h2,h3,h4{ font-family:'Orbitron', sans-serif; margin:0; letter-spacing: .01em; }
+  p{ margin: 0 0 1em; }
+  .wrap{ max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+  .overflow-x{ overflow-x:auto; }
+
+  /* ---------- scanline / grid texture ---------- */
+  .grid-tex{
+    position: fixed; inset:0; pointer-events:none; z-index:0; opacity:.35;
+    background-image:
+      linear-gradient(rgba(41,247,255,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(41,247,255,.05) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, black 40%, transparent 85%);
+  }
+
+  /* ---------- nav ---------- */
+  header{
+    position: sticky; top:0; z-index: 50;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: rgba(5,7,12,.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid var(--line);
+  }
+  nav{ display:flex; align-items:center; justify-content:space-between; height:70px; max-width: var(--maxw); margin:0 auto; padding: 0 24px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:'Orbitron'; font-weight:700; font-size:1.05rem; }
+  .brand-mark{
+    width:32px; height:32px; border-radius:8px; display:grid; place-items:center;
+    background: linear-gradient(135deg, var(--cyan), var(--violet));
+    box-shadow: 0 0 18px rgba(41,247,255,.55);
+    color:#04121a; font-size: 16px;
+  }
+  .navlinks{ display:flex; gap: 30px; list-style:none; margin:0; padding:0; font-weight:600; font-size:.95rem; }
+  .navlinks a{ text-decoration:none; color: var(--text-dim); position:relative; transition: color .2s; padding: 4px 0;}
+  .navlinks a:hover, .navlinks a:focus-visible{ color: var(--cyan); }
+  .navlinks a::after{
+    content:''; position:absolute; left:0; right:0; bottom:-4px; height:2px;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta)); transform: scaleX(0); transform-origin: left;
+    transition: transform .25s;
+  }
+  .navlinks a:hover::after{ transform: scaleX(1); }
+  .nav-cta{
+    display:inline-block; padding: 9px 18px; border-radius: 8px; text-decoration:none;
+    background: var(--cyan); color:#04121a; font-weight:700; font-size:.88rem; letter-spacing:.02em;
+    box-shadow: 0 0 20px rgba(41,247,255,.4);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .nav-cta:hover{ transform: translateY(-1px); box-shadow: 0 0 28px rgba(41,247,255,.65); }
+  .burger{ display:none; background:none; border:1px solid var(--line); border-radius:8px; width:42px; height:42px; color:var(--text); cursor:pointer; }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative; min-height: min(88vh, 780px); display:flex; align-items:center;
+    padding: 90px 0 60px; overflow:hidden;
+  }
+  #heroCanvas{ position:absolute; inset:0; width:100%; height:100%; opacity:.55; }
+  .hero::after{
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse 60% 55% at 50% 30%, rgba(157,78,221,.18), transparent 60%),
+                radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,46,154,.12), transparent 60%);
+    pointer-events:none;
+  }
+  .hero-inner{ position:relative; z-index:2; max-width: var(--maxw); margin:0 auto; padding:0 24px; width:100%; }
+  .eyebrow-pill{
+    display:inline-flex; align-items:center; gap:8px; padding: 7px 14px; border-radius: 999px;
+    border:1px solid rgba(41,247,255,.4); background: rgba(41,247,255,.06); color: var(--cyan);
+    font-size:.82rem; font-weight:600; margin-bottom: 26px; letter-spacing:.02em;
+  }
+  .eyebrow-pill .dot{ width:7px;height:7px;border-radius:50%; background: var(--danger); box-shadow: 0 0 8px var(--danger); animation: blink 1.6s infinite; }
+  @keyframes blink{ 50%{ opacity:.25; } }
+
+  .hero h1{
+    font-size: clamp(2.4rem, 6.4vw, 4.6rem); font-weight:900; line-height:1.04; max-width: 15ch;
+    text-shadow: 0 0 30px rgba(41,247,255,.25);
+  }
+  .hero h1 .glow-cyan{ color: var(--cyan); text-shadow: 0 0 18px rgba(41,247,255,.75), 0 0 46px rgba(41,247,255,.35); }
+  .hero h1 .glow-mag{ color: var(--magenta); text-shadow: 0 0 18px rgba(255,46,154,.7), 0 0 46px rgba(255,46,154,.3); }
+
+  .hero-sub{ max-width: 56ch; color: var(--text-dim); font-size: 1.18rem; margin-top: 22px; }
+  .hero-actions{ display:flex; gap:16px; margin-top: 34px; flex-wrap:wrap; }
+  .btn{
+    font-family:'Rajdhani'; font-weight:700; font-size: 1rem; padding: 14px 26px; border-radius: 10px;
+    border: none; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:10px;
+    transition: transform .15s, box-shadow .2s, background .2s;
+  }
+  .btn-primary{ background: linear-gradient(120deg, var(--cyan), #6bf0d6); color:#04121a; box-shadow: 0 0 26px rgba(41,247,255,.35); }
+  .btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 0 34px rgba(41,247,255,.6); }
+  .btn-ghost{ background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .btn-ghost:hover{ border-color: var(--magenta); color: var(--magenta); }
+
+  .hero-stats{ display:flex; gap: 46px; margin-top: 58px; flex-wrap:wrap; }
+  .stat b{
+    display:block; font-family:'Orbitron'; font-size: clamp(1.7rem,3vw,2.3rem); font-weight:800;
+    background: linear-gradient(120deg, var(--cyan), var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .stat span{ color: var(--text-dim); font-size:.86rem; letter-spacing:.01em; }
+
+  /* ---------- section shell ---------- */
+  section{ position:relative; z-index:1; padding: 96px 0; }
+  .section-head{ max-width: 62ch; margin-bottom: 52px; }
+  .kicker{ color: var(--magenta); font-weight:700; font-size:.85rem; letter-spacing:.08em; margin-bottom:10px; display:block; font-family:'Orbitron'; }
+  .section-head h2{ font-size: clamp(1.7rem, 3.4vw, 2.5rem); line-height:1.15; }
+  .section-head p{ color: var(--text-dim); font-size: 1.08rem; margin-top: 14px; }
+
+  hr.divider{ border:none; border-top:1px solid var(--line); max-width: var(--maxw); margin: 0 auto; }
+
+  /* ---------- intro / terminal ---------- */
+  .intro-grid{ display:grid; grid-template-columns: 1.05fr .95fr; gap: 54px; align-items:center; }
+  .terminal{
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line); border-radius: var(--radius); overflow:hidden;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(41,247,255,.05);
+  }
+  .term-bar{ display:flex; align-items:center; gap:8px; padding: 12px 16px; border-bottom:1px solid var(--line); background: rgba(255,255,255,.02); }
+  .term-dot{ width:11px; height:11px; border-radius:50%; }
+  .term-body{ padding: 22px 22px 26px; font-family: 'Rajdhani'; font-size:1rem; min-height: 210px; }
+  .term-line{ color: var(--safe); margin-bottom:8px; }
+  .term-line .p{ color: var(--text-dim); }
+  .caret{ display:inline-block; width:9px; height:1.1em; background: var(--cyan); vertical-align:-2px; animation: caret 1s steps(1) infinite; }
+  @keyframes caret{ 50%{ opacity:0; } }
+
+  .intro-copy h3{ font-size: 1.5rem; margin-bottom: 14px; }
+  .intro-copy p{ color: var(--text-dim); font-size: 1.05rem; }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+  .chip{ border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:.85rem; color: var(--text-dim); }
+
+  /* ---------- types grid ---------- */
+  .types-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .type-card{
+    background: var(--panel); border:1px solid var(--line); border-radius: var(--radius);
+    padding: 26px 22px; position:relative; overflow:hidden; transition: border-color .25s, transform .25s;
+  }
+  .type-card:hover{ border-color: var(--accent, var(--cyan)); transform: translateY(-4px); }
+  .type-card::before{
+    content:''; position:absolute; inset:0; opacity:0; transition: opacity .25s; pointer-events:none;
+    background: radial-gradient(180px 120px at 20% 0%, color-mix(in srgb, var(--accent, var(--cyan)) 22%, transparent), transparent);
+  }
+  .type-card:hover::before{ opacity:1; }
+  .type-icon{
+    width:46px; height:46px; border-radius:10px; display:grid; place-items:center; margin-bottom:16px;
+    background: color-mix(in srgb, var(--accent, var(--cyan)) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent, var(--cyan)) 45%, transparent);
+    color: var(--accent, var(--cyan));
+  }
+  .type-card h4{ font-size: 1.06rem; margin-bottom:8px; letter-spacing:.01em; }
+  .type-card p{ color: var(--text-dim); font-size: .92rem; margin-bottom:10px; }
+  .type-example{ font-size: .82rem; color: var(--accent, var(--cyan)); border-top:1px dashed var(--line); padding-top:10px; }
+  .type-example b{ color: var(--text); font-weight:600; }
+
+  /* ---------- story (case file) ---------- */
+  .case-file{
+    max-width: var(--maxw); margin: 0 auto; display:grid; grid-template-columns: .8fr 1.2fr; gap:0;
+    border: 1px solid var(--line); border-radius: var(--radius); overflow:hidden;
+    background: var(--panel);
+    box-shadow: 0 30px 70px -35px rgba(0,0,0,.8);
+  }
+  .case-side{
+    background: linear-gradient(160deg, rgba(255,46,154,.12), rgba(157,78,221,.08));
+    padding: 40px 32px; border-right: 1px solid var(--line);
+    display:flex; flex-direction:column; justify-content:center; gap: 18px;
+  }
+  .case-tag{ display:inline-flex; width:fit-content; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; border:1px solid var(--danger); color: var(--danger); font-size:.78rem; font-weight:700; letter-spacing:.04em; }
+  .case-side h3{ font-size: 1.5rem; line-height:1.3; }
+  .case-meta{ display:flex; flex-direction:column; gap:10px; font-size:.9rem; color: var(--text-dim); border-top:1px solid var(--line); padding-top:16px; }
+  .case-meta span b{ color: var(--text); font-weight:600; }
+  .case-body{ padding: 40px 36px; }
+  .case-body p{ color: var(--text-dim); font-size: 1.02rem; }
+  .case-body p strong{ color: var(--text); }
+  .lesson-box{
+    margin-top: 22px; border-left: 3px solid var(--safe); background: rgba(77,255,180,.06);
+    padding: 16px 18px; border-radius: 0 10px 10px 0;
+  }
+  .lesson-box h5{ font-family:'Orbitron'; color: var(--safe); font-size:.85rem; letter-spacing:.03em; margin-bottom:8px; }
+  .lesson-box ul{ margin:0; padding-left: 18px; color: var(--text-dim); font-size:.94rem; }
+  .lesson-box li{ margin-bottom:5px; }
+  .case-source{ margin-top:18px; font-size:.78rem; color: var(--text-dim); opacity:.75; }
+
+  /* ---------- prevention ---------- */
+  .prevent-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .prevent-card{ border-radius: var(--radius); padding: 30px 28px; border:1px solid var(--line); }
+  .prevent-card.do{ background: linear-gradient(160deg, rgba(77,255,180,.08), rgba(13,18,32,.4)); }
+  .prevent-card.dont{ background: linear-gradient(160deg, rgba(255,77,109,.08), rgba(13,18,32,.4)); }
+  .prevent-card h3{ display:flex; align-items:center; gap:10px; font-size:1.25rem; margin-bottom:20px; }
+  .prevent-card.do h3{ color: var(--safe); }
+  .prevent-card.dont h3{ color: var(--danger); }
+  .prevent-card ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px; }
+  .prevent-card li{ display:flex; gap:12px; font-size:.98rem; color: var(--text); }
+  .prevent-card li::before{ flex:none; margin-top:3px; font-family:'Orbitron'; font-size:.7rem; width:20px; height:20px; border-radius:6px; display:grid; place-items:center; }
+  .prevent-card.do li::before{ content:'✓'; background: rgba(77,255,180,.15); color: var(--safe); border:1px solid rgba(77,255,180,.4); }
+  .prevent-card.dont li::before{ content:'✕'; background: rgba(255,77,109,.15); color: var(--danger); border:1px solid rgba(255,77,109,.4); }
+
+  /* ---------- report strip ---------- */
+  .report-strip{
+    max-width: var(--maxw); margin: 0 auto; border-radius: var(--radius); border:1px solid var(--line);
+    background: linear-gradient(120deg, rgba(41,247,255,.08), rgba(157,78,221,.08));
+    padding: 34px 36px; display:flex; align-items:center; justify-content:space-between; gap: 24px; flex-wrap:wrap;
+  }
+  .report-strip h3{ font-size: 1.2rem; margin-bottom:6px; }
+  .report-strip p{ color: var(--text-dim); margin:0; font-size:.95rem; }
+  .report-actions{ display:flex; gap:12px; flex-wrap:wrap; }
+  .helpline{ font-family:'Orbitron'; font-size:1.3rem; color: var(--amber); text-shadow: 0 0 14px rgba(255,183,3,.5); }
+
+  /* ---------- quiz ---------- */
+  .quiz-shell{
+    max-width: 720px; margin: 0 auto; background: var(--panel); border:1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 40px 80px -40px rgba(0,0,0,.85);
+    overflow:hidden;
+  }
+  .quiz-head{ padding: 22px 28px; border-bottom: 1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .quiz-progress-label{ font-size:.85rem; color: var(--text-dim); font-family:'Orbitron'; white-space:nowrap; }
+  .progress-track{ flex:1; height:8px; border-radius:999px; background: rgba(255,255,255,.06); overflow:hidden; }
+  .progress-fill{ height:100%; width:0%; background: linear-gradient(90deg, var(--cyan), var(--magenta)); transition: width .35s ease; border-radius:999px; }
+  .quiz-score-pill{ font-size:.82rem; padding:5px 12px; border-radius:999px; border:1px solid var(--line); color: var(--text-dim); }
+
+  .quiz-body{ padding: 32px 30px 30px; min-height: 300px; }
+  .q-text{ font-size: 1.28rem; font-weight:600; margin-bottom: 24px; line-height:1.4; }
+  .q-options{ display:flex; flex-direction:column; gap:12px; }
+  .q-opt{
+    text-align:left; padding: 14px 16px; border-radius:10px; border:1px solid var(--line); background: rgba(255,255,255,.02);
+    color: var(--text); font-family:'Rajdhani'; font-size:1rem; cursor:pointer; display:flex; align-items:center; gap:12px;
+    transition: border-color .18s, background .18s, transform .1s;
+  }
+  .q-opt:hover:not(:disabled){ border-color: var(--cyan); background: rgba(41,247,255,.05); }
+  .q-opt .letter{ flex:none; width:26px; height:26px; border-radius:7px; border:1px solid var(--line); display:grid; place-items:center; font-size:.8rem; font-family:'Orbitron'; color: var(--text-dim); }
+  .q-opt.correct{ border-color: var(--safe); background: rgba(77,255,180,.1); }
+  .q-opt.correct .letter{ background: var(--safe); color:#04120b; border-color: var(--safe); }
+  .q-opt.wrong{ border-color: var(--danger); background: rgba(255,77,109,.1); }
+  .q-opt.wrong .letter{ background: var(--danger); color:#1a0408; border-color: var(--danger); }
+  .q-opt:disabled{ cursor:default; }
+
+  .q-explain{
+    margin-top:18px; font-size:.92rem; color: var(--text-dim); padding: 14px 16px; border-radius:10px;
+    background: rgba(255,255,255,.03); border-left:3px solid var(--cyan); display:none;
+  }
+  .quiz-foot{ padding: 18px 30px 28px; display:flex; justify-content:flex-end; }
+  .btn-next{ background: var(--violet); color:#fff; box-shadow: 0 0 20px rgba(157,78,221,.4); }
+  .btn-next:disabled{ opacity:.35; cursor:not-allowed; box-shadow:none; }
+  .btn-next:hover:not(:disabled){ transform: translateY(-2px); box-shadow: 0 0 28px rgba(157,78,221,.6); }
+
+  .quiz-result{ text-align:center; padding: 20px 10px 6px; display:none; }
+  .quiz-result .score-num{ font-family:'Orbitron'; font-size: 3.6rem; font-weight:900; background: linear-gradient(120deg, var(--cyan), var(--magenta)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .quiz-result .score-tag{ font-size:1.15rem; font-weight:700; margin: 6px 0 16px; }
+  .quiz-result p{ color: var(--text-dim); max-width: 46ch; margin: 0 auto 24px; }
+
+  /* ---------- footer ---------- */
+  footer{ border-top: 1px solid var(--line); padding: 42px 0 calc(42px + env(safe-area-inset-bottom,0px)); }
+  .foot-grid{ display:flex; justify-content:space-between; align-items:center; gap: 20px; flex-wrap:wrap; }
+  .foot-note{ color: var(--text-dim); font-size: .85rem; max-width: 60ch; }
+
+  /* ---------- misc ---------- */
+  .reveal{ opacity:0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:none; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .reveal{ transition:none; opacity:1; transform:none; }
+    .caret, .eyebrow-pill .dot{ animation:none; }
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 980px){
+    .types-grid{ grid-template-columns: repeat(2,1fr); }
+    .intro-grid{ grid-template-columns: 1fr; }
+    .case-file{ grid-template-columns: 1fr; }
+    .case-side{ border-right:none; border-bottom:1px solid var(--line); }
+    .prevent-grid{ grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px){
+    .navlinks{ display:none; }
+    .burger{ display:block; }
+    .hero{ padding-top: 60px; }
+    .types-grid{ grid-template-columns: 1fr; }
+    .hero-stats{ gap: 30px; }
+    .report-strip{ flex-direction:column; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="grid-tex"></div>
+
+<header>
+  <nav>
+    <div class="brand"><span class="brand-mark">🛡</span> CyberSafe</div>
+    <ul class="navlinks">
+      <li><a href="#what">What Is It</a></li>
+      <li><a href="#types">Threats</a></li>
+      <li><a href="#story">Real Story</a></li>
+      <li><a href="#prevent">Stay Safe</a></li>
+      <li><a href="#quiz">Quiz</a></li>
+    </ul>
+    <a href="#quiz" class="nav-cta">Take the Quiz</a>
+    <button class="burger" id="burgerBtn" aria-label="Menu">☰</button>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-inner">
+    <span class="eyebrow-pill"><span class="dot"></span> A student's guide to digital safety</span>
+    <h1>Stay <span class="glow-cyan">Smart</span>.<br>Stay <span class="glow-mag">Secure</span>.<br>Outsmart Cyber Crime.</h1>
+    <p class="hero-sub">Every day, someone your age is tricked online — through a fake game reward, a scary text, or a stranger pretending to be a friend. Learn how these tricks work, and how to shut them down before they get you.</p>
+    <div class="hero-actions">
+      <a href="#types" class="btn btn-primary">Explore the Threats ↓</a>
+      <a href="#quiz" class="btn btn-ghost">Test Your Knowledge</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><b data-count="42">0</b><span>% of Indians have faced phishing / OTP fraud attempts</span></div>
+      <div class="stat"><b data-count="1930" data-plain="true">0</b><span>National Cyber Crime Helpline (India)</span></div>
+      <div class="stat"><b data-count="12">0</b><span>quiz questions to test what you've learned</span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ WHAT IS IT ============ -->
+<section id="what">
+  <div class="wrap">
+    <div class="intro-grid">
+      <div class="reveal">
+        <div class="terminal">
+          <div class="term-bar">
+            <span class="term-dot" style="background:#ff5f57"></span>
+            <span class="term-dot" style="background:#febc2e"></span>
+            <span class="term-dot" style="background:#28c840"></span>
+          </div>
+          <div class="term-body" id="termBody">
+            <div class="term-line"><span class="p">&gt;</span> define cybercrime<span class="caret"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="intro-copy reveal">
+        <span class="kicker">// The Basics</span>
+        <h3>What exactly is "cyber crime"?</h3>
+        <p>Cyber crime is any illegal activity that is carried out using a computer, phone, or the internet. It can target your money, your data, your identity, or even your feelings — and it doesn't need a mask or a weapon, just a screen and a trick.</p>
+        <p>It's not just a "grown-up problem." Students are frequent targets because they're active on social media, gaming apps, and messaging platforms — often before they've learned to spot the warning signs.</p>
+        <div class="chip-row">
+          <span class="chip">Money-related fraud</span>
+          <span class="chip">Data & identity theft</span>
+          <span class="chip">Harassment & bullying</span>
+          <span class="chip">Malicious software</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TYPES OF CYBERCRIME ============ -->
+<section id="types">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">// Know Your Enemy</span>
+      <h2>The 8 cyber threats every student should recognise</h2>
+      <p>Cyber criminals rely on one thing above all: you not recognising the trick. Here's what to watch for.</p>
+    </div>
+    <div class="types-grid">
+
+      <div class="type-card reveal" style="--accent: var(--cyan)">
+        <div class="type-icon">✉</div>
+        <h4>Phishing</h4>
+        <p>Fake emails, texts, or links pretending to be your bank, school, or a well-known brand — designed to steal your passwords or personal details.</p>
+        <div class="type-example"><b>Example:</b> "Your account will be blocked, click here to verify" texts.</div>
+      </div>
+
+      <div class="type-card reveal" style="--accent: var(--amber)">
+        <div class="type-icon">🔐</div>
+        <h4>OTP & Banking Fraud</h4>
+        <p>Scammers call or message pretending to be bank staff, pressuring you to share the One-Time Password sent to your phone.</p>
+        <div class="type-example"><b>Rule:</b> No bank employee will ever ask for your OTP.</div>
+      </div>
+
+      <div class="type-card reveal" style="--accent: var(--magenta)">
+        <div class="type-icon">💬</div>
+        <h4>Cyberbullying</h4>
+        <p>Using chats, comments, or social media to repeatedly threaten, mock, embarrass, or exclude someone.</p>
+        <div class="type-example"><b>Example:</b> Group chats created to insult a classmate.</div>
+      </div>
+
+      <div class="type-card reveal" style="--accent: var(--violet)">
+        <div class="type-icon">🪪</div>
+        <h4>Identity Theft</h4>
+        <p>Someone steals your photos, name, or personal details to create fake profiles or pretend to be you online.</p>
+        <div class="type-example"><b>Example:</b> A fake Instagram account using your pictures.</div>
+      </div>
+
+      <div class="type-card reveal" style="--accent: var(--cyan)">
+        <div class="type-icon">🖥</div>
+        <h4>Hacking</h4>
+        <p>Gaining unauthorised access to someone's device, account, or network — often using weak or reused passwords.</p>
+        <div class="type-example"><b>Defence:</b> Strong, unique passwords + two-factor login.</div>
+      </div>
+
+      <div class="type-card reveal" style="--accent: var(--danger)">
+        <div class="type-icon">🐛</div>
+        <h4>Malware & Viruses</h4>
+        <p>Harmful software hidden in downloads, pirated apps, or attachments that damages your device or steals data quietly.</p>
+        <div class="type-example"><b>Example:</b> A "free" cracked game download that hijacks your phone.</div>
+      </div>
+
+      <div class="type-card reveal" style="--accent: var(--amber)">
+        <div class="type-icon">🎮</div>
+        <h4>Gaming & App Scams</h4>
+        <p>Fake in-game offers or bonus items that ask you to enter bank details or an OTP to "claim a reward."</p>
+        <div class="type-example"><b>Rule:</b> No real reward ever needs your bank OTP.</div>
+      </div>
+
+      <div class="type-card reveal" style="--accent: var(--magenta)">
+        <div class="type-icon">🏆</div>
+        <h4>Fake Prizes & Lottery Scams</h4>
+        <p>Messages claiming you've "won" a lottery, lucky draw, or gift card — asking for a fee or your details to release it.</p>
+        <div class="type-example"><b>Rule:</b> You can't win a contest you never entered.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ REAL STORY ============ -->
+<section id="story">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">// Case File</span>
+      <h2>A real story: how one in-game "offer" cost a family ₹1.5 lakh</h2>
+      <p>This actually happened — and it shows exactly how these scams are built to fool someone young, curious, and in a hurry.</p>
+    </div>
+
+    <div class="case-file reveal">
+      <div class="case-side">
+        <span class="case-tag">● Reported Case</span>
+        <h3>The Mobile Game "Bonus" Trap</h3>
+        <div class="case-meta">
+          <span><b>Who:</b> A 14-year-old student, Lucknow, India</span>
+          <span><b>Where it started:</b> Inside a popular mobile game</span>
+          <span><b>Loss:</b> ₹1.5 lakh (his mother's savings)</span>
+          <span><b>Reported:</b> 2025, local news &amp; cyber cell</span>
+        </div>
+      </div>
+      <div class="case-body">
+        <p>A 14-year-old boy was playing a popular mobile game when a pop-up appeared, offering special in-game items and bonus rewards. <strong>To "claim" the offer, it asked him to enter bank account details and an OTP.</strong></p>
+        <p>Caught up in the excitement of the reward, he used his mother's bank details and shared the OTP that arrived on her phone — not realising that a real bank or game would never need that code. Within minutes, <strong>₹1.5 lakh vanished from the family's account.</strong> His mother noticed the deduction message almost immediately and filed a complaint with the bank and the local cyber crime cell, and police began investigating the fraud.</p>
+        <div class="lesson-box">
+          <h5>WHY THIS TRICK WORKED</h5>
+          <ul>
+            <li>The offer felt exciting and time-limited, so he acted fast without thinking.</li>
+            <li>It looked like part of the game, not like a "scam."</li>
+            <li>He didn't know that an OTP should never be entered for a free reward.</li>
+          </ul>
+        </div>
+        <div class="lesson-box" style="border-left-color: var(--cyan); background: rgba(41,247,255,.06);">
+          <h5 style="color: var(--cyan);">WHAT TO DO INSTEAD</h5>
+          <ul>
+            <li>Never enter bank details or OTPs inside a game or app for a "bonus."</li>
+            <li>If something asks for money-related info to give you something free — stop and tell an adult.</li>
+            <li>Check bank SMS alerts immediately and report suspicious deductions right away.</li>
+          </ul>
+        </div>
+        <p class="case-source">Based on news reports of a cyber fraud case investigated by Lucknow police, 2025. Details are summarised for educational use.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PREVENTION ============ -->
+<section id="prevent">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">// Your Defence Kit</span>
+      <h2>Simple habits that stop most cyber crime</h2>
+      <p>You don't need to be a tech expert — just a few smart habits, used consistently.</p>
+    </div>
+    <div class="prevent-grid">
+      <div class="prevent-card do reveal">
+        <h3>✔ Do this</h3>
+        <ul>
+          <li>Use strong, unique passwords with letters, numbers &amp; symbols for every account.</li>
+          <li>Turn on two-factor authentication wherever it's offered.</li>
+          <li>Think before you click — hover over or check a link before opening it.</li>
+          <li>Keep your profiles private and only accept requests from people you actually know.</li>
+          <li>Tell a parent or teacher immediately if something online feels wrong.</li>
+          <li>Download apps only from official app stores.</li>
+          <li>Log out of shared or public devices after use.</li>
+          <li>Update your apps and phone software regularly.</li>
+        </ul>
+      </div>
+      <div class="prevent-card dont reveal">
+        <h3>✘ Avoid this</h3>
+        <ul>
+          <li>Never share your OTP, password, or PIN with anyone — ever, for any reason.</li>
+          <li>Don't click links from unknown numbers, emails, or pop-ups promising prizes.</li>
+          <li>Don't share your address, school name, or live location with online strangers.</li>
+          <li>Don't use the same password on multiple sites.</li>
+          <li>Don't do banking or shopping on public/free Wi-Fi.</li>
+          <li>Don't download apps or files from unofficial links sent on chat.</li>
+          <li>Don't respond to threats or blackmail online — save evidence and report instead.</li>
+          <li>Don't believe "too good to be true" offers — because they usually are.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REPORT STRIP ============ -->
+<section style="padding-top:0;">
+  <div class="wrap">
+    <div class="report-strip reveal">
+      <div>
+        <h3>Something feels wrong online? Report it.</h3>
+        <p>In India, cyber crime can be reported for free, anytime, through the official government portal or helpline.</p>
+      </div>
+      <div class="report-actions">
+        <div>
+          <div class="helpline">📞 1930</div>
+        </div>
+        <a href="https://cybercrime.gov.in" target="_blank" rel="noopener" class="btn btn-primary">cybercrime.gov.in ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz">
+  <div class="wrap">
+    <div class="section-head reveal" style="text-align:center; max-width:56ch; margin-inline:auto;">
+      <span class="kicker">// Final Check</span>
+      <h2>Put your cyber safety skills to the test</h2>
+      <p>12 questions. No pressure — just see how sharp your instincts are.</p>
+    </div>
+
+    <div class="quiz-shell reveal">
+      <div class="quiz-head">
+        <span class="quiz-progress-label" id="qLabel">Question 1 / 12</span>
+        <div class="progress-track"><div class="progress-fill" id="qProgress"></div></div>
+        <span class="quiz-score-pill" id="qScorePill">Score: 0</span>
+      </div>
+
+      <div class="quiz-body" id="quizBody">
+        <p class="q-text" id="qText"></p>
+        <div class="q-options" id="qOptions"></div>
+        <div class="q-explain" id="qExplain"></div>
+      </div>
+
+      <div class="quiz-result" id="quizResult">
+        <div class="score-num" id="finalScore">0/12</div>
+        <div class="score-tag" id="finalTag"></div>
+        <p id="finalMsg"></p>
+        <button class="btn btn-primary" id="retryBtn">Retry Quiz</button>
+      </div>
+
+      <div class="quiz-foot" id="quizFoot">
+        <button class="btn btn-next" id="nextBtn" disabled>Next Question →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div class="brand"><span class="brand-mark" style="width:26px;height:26px;font-size:13px;">🛡</span> CyberSafe</div>
+    <p class="foot-note">Created for a school cyber-safety outreach program (grades 9–10). Educational content only — always talk to a parent, teacher, or trusted adult if something online feels unsafe.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- mobile nav ---------- */
+  var burger = document.getElementById('burgerBtn');
+  var navlinks = document.querySelector('.navlinks');
+  burger.addEventListener('click', function(){
+    var open = navlinks.style.display === 'flex';
+    navlinks.style.display = open ? 'none' : 'flex';
+    navlinks.style.cssText += open ? '' : 'position:fixed;top:70px;left:0;right:0;background:#05070c;flex-direction:column;padding:20px 24px;border-bottom:1px solid #1c2740;gap:18px;';
+  });
+
+  /* ---------- scroll reveal ---------- */
+  var reveals = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: .12 });
+    reveals.forEach(function(el){ io.observe(el); });
+  } else {
+    reveals.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* ---------- stat counters ---------- */
+  var stats = document.querySelectorAll('.stat b');
+  var counted = false;
+  function runCounters(){
+    if(counted) return; counted = true;
+    stats.forEach(function(el){
+      var target = parseInt(el.getAttribute('data-count'), 10);
+      var plain = el.getAttribute('data-plain') === 'true';
+      var dur = 1100, start = null;
+      function step(ts){
+        if(!start) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        var val = Math.floor(p * target);
+        el.textContent = plain ? val : val + (target === 12 ? '' : '%');
+        if(p < 1) requestAnimationFrame(step); else el.textContent = plain ? target : target + (target===12?'':'%');
+      }
+      requestAnimationFrame(step);
+    });
+  }
+  var heroStatBlock = document.querySelector('.hero-stats');
+  if(heroStatBlock){
+    if('IntersectionObserver' in window){
+      var io2 = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ runCounters(); io2.disconnect(); } });
+      }, { threshold:.3 });
+      io2.observe(heroStatBlock);
+    } else { runCounters(); }
+  }
+
+  /* ---------- terminal typing effect ---------- */
+  var termLines = [
+    "> define cybercrime",
+    "any illegal act carried out using a computer,",
+    "phone, or the internet — targeting money,",
+    "data, identity, or wellbeing.",
+    "",
+    "> risk_level(students) = HIGH",
+    "reason: heavy use of social media, gaming",
+    "  and chat apps, often without safety habits.",
+    "",
+    "> status: preventable ✔"
+  ];
+  var termBody = document.getElementById('termBody');
+  (function typeTerminal(){
+    if(!termBody) return;
+    termBody.innerHTML = '';
+    var li = 0, ci = 0;
+    var lineEl = document.createElement('div');
+    lineEl.className = 'term-line';
+    termBody.appendChild(lineEl);
+    function tick(){
+      if(li >= termLines.length){
+        var caret = document.createElement('span'); caret.className='caret';
+        termBody.appendChild(caret);
+        return;
+      }
+      var full = termLines[li];
+      if(ci <= full.length){
+        lineEl.textContent = full.slice(0, ci);
+        ci++;
+        setTimeout(tick, full.length === 0 ? 120 : 18);
+      } else {
+        li++; ci = 0;
+        lineEl = document.createElement('div');
+        lineEl.className = 'term-line';
+        if(termLines[li] && termLines[li].indexOf('>') === 0) lineEl.style.color = 'var(--cyan)';
+        termBody.appendChild(lineEl);
+        setTimeout(tick, 140);
+      }
+    }
+    tick();
+  })();
+
+  /* ---------- hero canvas: circuit particles ---------- */
+  var canvas = document.getElementById('heroCanvas');
+  var ctx = canvas.getContext('2d');
+  var W, H, nodes = [];
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize(){
+    var hero = document.querySelector('.hero');
+    W = canvas.width = hero.offsetWidth;
+    H = canvas.height = hero.offsetHeight;
+  }
+  function initNodes(){
+    var count = Math.min(70, Math.floor((W*H)/18000));
+    nodes = [];
+    for(var i=0;i<count;i++){
+      nodes.push({
+        x: Math.random()*W, y: Math.random()*H,
+        vx: (Math.random()-0.5)*.35, vy: (Math.random()-0.5)*.35,
+        r: Math.random()*1.6+.6
+      });
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<nodes.length;i++){
+      var n = nodes[i];
+      n.x += n.vx; n.y += n.vy;
+      if(n.x<0||n.x>W) n.vx*=-1;
+      if(n.y<0||n.y>H) n.vy*=-1;
+    }
+    for(var i=0;i<nodes.length;i++){
+      for(var j=i+1;j<nodes.length;j++){
+        var a = nodes[i], b = nodes[j];
+        var dx=a.x-b.x, dy=a.y-b.y, d = Math.sqrt(dx*dx+dy*dy);
+        if(d < 130){
+          ctx.strokeStyle = 'rgba(41,247,255,' + (0.16*(1-d/130)) + ')';
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        }
+      }
+    }
+    for(var i=0;i<nodes.length;i++){
+      var n = nodes[i];
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(41,247,255,.85)';
+      ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+      ctx.fill();
+    }
+    if(!reduceMotion) requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', function(){ resize(); initNodes(); });
+  resize(); initNodes();
+  if(!reduceMotion){ requestAnimationFrame(draw); } else { draw(); }
+
+  /* ---------- QUIZ ---------- */
+  var questions = [
+    {
+      q: "What does \"phishing\" mean in cybercrime?",
+      opts: [
+        "Fishing for real fish using an app",
+        "A fraudulent attempt to steal sensitive information by pretending to be trustworthy",
+        "A type of computer game",
+        "A legal way for banks to contact customers"
+      ],
+      correct: 1,
+      explain: "Phishing uses fake messages that look official to trick you into revealing passwords, OTPs, or card details."
+    },
+    {
+      q: "You get an SMS: \"Your bank account will be blocked, click here to verify now!\" What's the safest response?",
+      opts: [
+        "Click the link immediately to avoid losing your account",
+        "Ignore the link and contact your bank directly using their official app or number",
+        "Reply to the SMS with your account number",
+        "Forward it to friends to warn them"
+      ],
+      correct: 1,
+      explain: "Urgent, scary messages are a classic pressure tactic. Always verify independently through official channels — never through the link provided."
+    },
+    {
+      q: "An OTP (One-Time Password) should be:",
+      opts: [
+        "Shared with anyone who calls claiming to be from your bank",
+        "Kept private and never shared with anyone, including \"bank staff\"",
+        "Used as your permanent login password",
+        "Posted on social media for backup"
+      ],
+      correct: 1,
+      explain: "No genuine bank, company, or game will ever ask you to share an OTP with them. It exists to confirm actions only you should authorise."
+    },
+    {
+      q: "Which of these makes the strongest password?",
+      opts: [
+        "Your name plus your birth year",
+        "\"password123\"",
+        "A mix of upper/lowercase letters, numbers and symbols, at least 8–12 characters long",
+        "The same password used on every account, for easy memory"
+      ],
+      correct: 2,
+      explain: "Longer, mixed, and unique passwords are far harder for attackers to guess or crack."
+    },
+    {
+      q: "Cyberbullying refers to:",
+      opts: [
+        "Playing bullying-themed video games",
+        "Repeatedly using digital platforms to harass, threaten, or embarrass someone",
+        "A term used only in cricket commentary",
+        "A type of internet connection protocol"
+      ],
+      correct: 1,
+      explain: "Cyberbullying is a real form of harm — repeated online harassment, mockery, or exclusion — and should always be reported to a trusted adult."
+    },
+    {
+      q: "A stranger online asks for your home address, school name, and photos. You should:",
+      opts: [
+        "Share it politely since they seem friendly",
+        "Tell a trusted adult and avoid sharing personal details with strangers online",
+        "Give a fake address but real school name",
+        "Block them after telling them your full name first"
+      ],
+      correct: 1,
+      explain: "Personal details can be used to locate, impersonate, or manipulate you. Trusted adults should always be looped in when something feels off."
+    },
+    {
+      q: "\"Malware\" is best described as:",
+      opts: [
+        "Software designed to damage a device, disrupt it, or gain unauthorised access",
+        "A brand of antivirus program",
+        "A popular social media application",
+        "A setting inside your phone's firewall"
+      ],
+      correct: 0,
+      explain: "Malware includes viruses, spyware, and other harmful programs — often hidden inside pirated apps, cracked games, or suspicious downloads."
+    },
+    {
+      q: "What's the safest way to download a new app?",
+      opts: [
+        "From a link shared by an unknown number on WhatsApp",
+        "From official app stores like Google Play Store or Apple App Store",
+        "From a pop-up advertisement",
+        "From any website that says \"100% free\""
+      ],
+      correct: 1,
+      explain: "Official app stores review apps for safety, though even there it pays to check reviews and permissions before installing."
+    },
+    {
+      q: "Before entering card or bank details on a website, you should check that:",
+      opts: [
+        "The website has bright, attractive colours",
+        "The URL starts with \"https://\", shows a padlock icon, and looks like the genuine official site",
+        "The website is offering a huge discount",
+        "Nothing — all websites are equally safe"
+      ],
+      correct: 1,
+      explain: "\"https\" and a padlock show an encrypted connection, but you should also double-check the actual spelling of the web address — fake sites often use near-identical URLs."
+    },
+    {
+      q: "Someone creates a fake social media profile using your name and photos without your permission. This is:",
+      opts: [
+        "A cybercrime — a form of identity theft or impersonation",
+        "Totally normal and nothing to worry about",
+        "Not a crime since it's \"just a photo\"",
+        "Something that only happens to celebrities"
+      ],
+      correct: 0,
+      explain: "Impersonation using someone else's identity online is a recognised cybercrime and can be reported to the platform and to the cyber crime portal."
+    },
+    {
+      q: "In India, where can a cyber crime be officially reported?",
+      opts: [
+        "Only by writing a letter to a newspaper",
+        "The National Cyber Crime Reporting Portal (cybercrime.gov.in) or the helpline 1930",
+        "There is no official way to report it",
+        "Only by messaging a TV news channel"
+      ],
+      correct: 1,
+      explain: "India has a dedicated national portal and helpline (1930) specifically for reporting cyber crime, available to everyone including students."
+    },
+    {
+      q: "Why is doing banking or shopping on free public Wi-Fi risky?",
+      opts: [
+        "It's completely safe — public Wi-Fi is always encrypted",
+        "Hackers can potentially intercept data sent over unsecured public networks",
+        "It only drains your phone's battery faster",
+        "It has no real risk at all"
+      ],
+      correct: 1,
+      explain: "Unsecured public networks can allow attackers to intercept sensitive data. It's safer to use mobile data or a trusted, secured network for anything financial."
+    }
+  ];
+
+  var idx = 0, score = 0, answered = false;
+  var qText = document.getElementById('qText');
+  var qOptions = document.getElementById('qOptions');
+  var qExplain = document.getElementById('qExplain');
+  var qLabel = document.getElementById('qLabel');
+  var qProgress = document.getElementById('qProgress');
+  var qScorePill = document.getElementById('qScorePill');
+  var nextBtn = document.getElementById('nextBtn');
+  var quizBody = document.getElementById('quizBody');
+  var quizFoot = document.getElementById('quizFoot');
+  var quizResult = document.getElementById('quizResult');
+  var retryBtn = document.getElementById('retryBtn');
+
+  var letters = ['A','B','C','D'];
+
+  function renderQuestion(){
+    answered = false;
+    var item = questions[idx];
+    qText.textContent = item.q;
+    qOptions.innerHTML = '';
+    qExplain.style.display = 'none';
+    qExplain.textContent = '';
+    nextBtn.disabled = true;
+    nextBtn.textContent = (idx === questions.length - 1) ? 'See My Score →' : 'Next Question →';
+
+    item.opts.forEach(function(optText, i){
+      var btn = document.createElement('button');
+      btn.className = 'q-opt';
+      btn.innerHTML = '<span class="letter">' + letters[i] + '</span><span>' + optText + '</span>';
+      btn.addEventListener('click', function(){ selectAnswer(i, btn); });
+      qOptions.appendChild(btn);
+    });
+
+    qLabel.textContent = 'Question ' + (idx+1) + ' / ' + questions.length;
+    qProgress.style.width = (idx / questions.length * 100) + '%';
+    qScorePill.textContent = 'Score: ' + score;
+  }
+
+  function selectAnswer(i, btnEl){
+    if(answered) return;
+    answered = true;
+    var item = questions[idx];
+    var allBtns = qOptions.querySelectorAll('.q-opt');
+    allBtns.forEach(function(b){ b.disabled = true; });
+
+    if(i === item.correct){
+      btnEl.classList.add('correct');
+      score++;
+    } else {
+      btnEl.classList.add('wrong');
+      allBtns[item.correct].classList.add('correct');
+    }
+    qExplain.textContent = item.explain;
+    qExplain.style.display = 'block';
+    qScorePill.textContent = 'Score: ' + score;
+    nextBtn.disabled = false;
+  }
+
+  nextBtn.addEventListener('click', function(){
+    if(idx < questions.length - 1){
+      idx++;
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  });
+
+  function showResult(){
+    qProgress.style.width = '100%';
+    quizBody.style.display = 'none';
+    quizFoot.style.display = 'none';
+    quizResult.style.display = 'block';
+
+    var total = questions.length;
+    document.getElementById('finalScore').textContent = score + '/' + total;
+    var tag, msg;
+    var pct = score/total;
+    if(pct >= 0.83){
+      tag = '🛡 Cyber Guardian'; msg = "Excellent! You've got sharp instincts for spotting online scams. Keep an eye out for your friends and family too.";
+    } else if(pct >= 0.58){
+      tag = '🔎 Cyber Aware'; msg = "Good grasp of the basics! Revisit the threats and prevention sections above to sharpen a few more instincts.";
+    } else {
+      tag = '⚠ Cyber Rookie'; msg = "You're just getting started — scroll back up and go through the threats and safety habits again, then try once more.";
+    }
+    document.getElementById('finalTag').textContent = tag;
+    document.getElementById('finalMsg').textContent = msg;
+  }
+
+  retryBtn.addEventListener('click', function(){
+    idx = 0; score = 0;
+    quizBody.style.display = 'block';
+    quizFoot.style.display = 'flex';
+    quizResult.style.display = 'none';
+    renderQuestion();
+  });
+
+  renderQuestion();
+})();
+</script>
+</body>
+</html>
