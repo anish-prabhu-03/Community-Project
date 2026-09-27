@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CyberSafe </title>
+<title>CyberSafe // Know It. Spot It. Stop It.</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -181,11 +181,92 @@
   @media (max-width: 980px){
     .stats-grid{ grid-template-columns: repeat(2,1fr); }
     .cat-grid{ grid-template-columns: 1fr; }
+    .threat-visual{ grid-template-columns: 1fr; }
+    .techniques-grid{ grid-template-columns: repeat(2,1fr); }
+    .myth-grid{ grid-template-columns: repeat(2,1fr); }
   }
   @media (max-width: 720px){
     .stats-grid{ grid-template-columns: 1fr; }
     .feedback-shell{ padding: 32px 22px; }
+    .techniques-grid{ grid-template-columns: 1fr; }
+    .myth-grid{ grid-template-columns: 1fr; }
+    .laws-row{ flex-direction:column; align-items:flex-start !important; }
   }
+
+  /* ---------- meet the threat / hacker illustration ---------- */
+  .threat-visual{
+    display:grid; grid-template-columns: 1.05fr .95fr; gap: 50px; align-items:center;
+  }
+  .threat-art{
+    position:relative; border-radius: var(--radius); border:1px solid var(--line);
+    background: radial-gradient(ellipse 80% 70% at 50% 30%, rgba(157,78,221,.14), transparent 65%), var(--panel);
+    overflow:hidden; aspect-ratio: 4/3;
+  }
+  .threat-art svg{ position:relative; z-index:2; width:100%; height:100%; }
+  .matrix-col{ position:absolute; top:-20%; font-family:'Orbitron',monospace; font-size:13px; color: var(--cyan); opacity:.18; white-space:pre; line-height:1.4; animation: matrixfall linear infinite; }
+  @keyframes matrixfall{ from{ transform: translateY(-10%);} to{ transform: translateY(120%);} }
+  @media (prefers-reduced-motion: reduce){ .matrix-col{ animation:none; } }
+  .threat-copy h3{ font-size: 1.5rem; margin-bottom:14px; }
+  .threat-copy p{ color: var(--text-dim); font-size:1.05rem; }
+  .threat-copy p strong{ color: var(--text); }
+
+  /* ---------- technique cards (reuses type-card visuals) ---------- */
+  .techniques-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+
+  /* ---------- myth vs fact flip cards ---------- */
+  .myth-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .flip-card{ perspective: 1200px; height: 220px; }
+  .flip-inner{
+    position:relative; width:100%; height:100%; text-align:left; transition: transform .6s; transform-style: preserve-3d; cursor:pointer;
+  }
+  .flip-card.flipped .flip-inner{ transform: rotateY(180deg); }
+  .flip-front, .flip-back{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius: var(--radius); border:1px solid var(--line);
+    padding: 24px 22px; display:flex; flex-direction:column; justify-content:center;
+  }
+  .flip-front{ background: var(--panel); }
+  .flip-front .tag{ font-family:'Orbitron'; font-size:.7rem; color: var(--danger); letter-spacing:.08em; margin-bottom:10px; }
+  .flip-front p{ font-size:1.05rem; font-weight:600; margin:0; color: var(--text); }
+  .flip-back{ background: linear-gradient(160deg, rgba(77,255,180,.12), var(--panel)); transform: rotateY(180deg); }
+  .flip-back .tag{ font-family:'Orbitron'; font-size:.7rem; color: var(--safe); letter-spacing:.08em; margin-bottom:10px; }
+  .flip-back p{ font-size:.94rem; color: var(--text-dim); margin:0; }
+  .flip-hint{ text-align:center; color: var(--text-dim); font-size:.78rem; margin-top:16px; opacity:.7; }
+
+  /* ---------- password strength checker ---------- */
+  .pw-shell{
+    max-width: 620px; margin:0 auto; background: var(--panel); border:1px solid var(--line); border-radius: var(--radius);
+    padding: 38px 34px; box-shadow: 0 30px 60px -35px rgba(0,0,0,.8);
+  }
+  .pw-note{ font-size:.86rem; color: var(--text-dim); background: rgba(255,183,3,.08); border-left:3px solid var(--amber); padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 22px; }
+  .pw-input-row{ position:relative; margin-bottom: 20px; }
+  .pw-input-row input{
+    width:100%; padding: 14px 46px 14px 16px; border-radius:10px; border:1px solid var(--line); background: rgba(255,255,255,.02);
+    color: var(--text); font-family:'Rajdhani'; font-size:1.05rem; letter-spacing:.03em;
+  }
+  .pw-input-row input:focus{ outline:none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(41,247,255,.15); }
+  .pw-toggle{ position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color: var(--text-dim); cursor:pointer; font-size:1.1rem; }
+  .pw-meter-track{ height:10px; border-radius:999px; background: rgba(255,255,255,.06); overflow:hidden; margin-bottom:10px; }
+  .pw-meter-fill{ height:100%; width:0%; border-radius:999px; transition: width .3s ease, background .3s ease; }
+  .pw-label{ font-family:'Orbitron'; font-size:.85rem; margin-bottom: 18px; display:block; }
+  .pw-checks{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .pw-checks li{ font-size:.88rem; color: var(--text-dim); display:flex; align-items:center; gap:8px; }
+  .pw-checks li .ico{ width:18px; height:18px; border-radius:5px; border:1px solid var(--line); display:grid; place-items:center; font-size:.65rem; flex:none; }
+  .pw-checks li.ok{ color: var(--text); }
+  .pw-checks li.ok .ico{ background: var(--safe); border-color: var(--safe); color:#04120b; }
+
+  /* ---------- cyber laws ---------- */
+  .laws-list{ max-width: 860px; margin: 0 auto; display:flex; flex-direction:column; gap:14px; }
+  .laws-row{
+    display:flex; align-items:center; gap: 20px; background: var(--panel); border:1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 22px;
+  }
+  .laws-badge{
+    flex:none; font-family:'Orbitron'; font-size:.85rem; font-weight:700; color: var(--violet); border:1px solid var(--violet);
+    border-radius:8px; padding: 8px 12px; white-space:nowrap; background: rgba(157,78,221,.08);
+  }
+  .laws-row p{ margin:0; color: var(--text-dim); font-size:.96rem; }
+  .laws-row p strong{ color: var(--text); }
+  .laws-note{ text-align:center; color: var(--text-dim); font-size:.86rem; margin-top: 22px; opacity:.8; }
 
   /* ---------- intro / terminal ---------- */
   .intro-grid{ display:grid; grid-template-columns: 1.05fr .95fr; gap: 54px; align-items:center; }
@@ -429,6 +510,76 @@
   </div>
 </section>
 
+<!-- ============ MEET THE THREAT (illustration) ============ -->
+<section id="threat">
+  <div class="wrap">
+    <div class="threat-visual">
+      <div class="threat-art reveal">
+        <div class="matrix-col" style="left:6%; animation-duration:7s;">01<br>10<br>11<br>00<br>10<br>01</div>
+        <div class="matrix-col" style="left:18%; animation-duration:9s; animation-delay:-2s;">10<br>01<br>00<br>11<br>01<br>10</div>
+        <div class="matrix-col" style="left:82%; animation-duration:8s; animation-delay:-4s;">11<br>00<br>01<br>10<br>00<br>11</div>
+        <div class="matrix-col" style="left:92%; animation-duration:10s; animation-delay:-1s;">00<br>11<br>10<br>01<br>11<br>00</div>
+        <svg viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of a hooded figure typing on a laptop with a glowing screen, face hidden">
+          <defs>
+            <linearGradient id="screenGlow" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#29f7ff"/>
+              <stop offset="100%" stop-color="#ff2e9a"/>
+            </linearGradient>
+            <radialGradient id="glowSoft" cx="50%" cy="45%" r="60%">
+              <stop offset="0%" stop-color="#29f7ff" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#29f7ff" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="hoodieShade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#141b2c"/>
+              <stop offset="100%" stop-color="#080b14"/>
+            </linearGradient>
+          </defs>
+
+          <ellipse cx="320" cy="270" rx="230" ry="150" fill="url(#glowSoft)"/>
+
+          <text x="70" y="90" font-family="Orbitron, monospace" font-size="12" fill="#29f7ff" opacity="0.5">10110100</text>
+          <text x="480" y="70" font-family="Orbitron, monospace" font-size="12" fill="#ff2e9a" opacity="0.45">ACCESS://</text>
+          <text x="500" y="130" font-family="Orbitron, monospace" font-size="11" fill="#29f7ff" opacity="0.4">0xF3A9</text>
+          <text x="60" y="160" font-family="Orbitron, monospace" font-size="11" fill="#9d4edd" opacity="0.45">SCAN...</text>
+
+          <rect x="70" y="392" width="500" height="14" rx="6" fill="#0d1220" stroke="#1c2740"/>
+          <ellipse cx="320" cy="410" rx="230" ry="18" fill="#000" opacity="0.35"/>
+
+          <path d="M170 392 C170 300 200 240 320 240 C440 240 470 300 470 392 Z" fill="url(#hoodieShade)"/>
+
+          <path d="M255 260 C255 195 285 150 320 150 C355 150 385 195 385 260 C385 300 355 320 320 320 C285 320 255 300 255 260 Z" fill="#0b0f1a" stroke="#1c2740" stroke-width="2"/>
+          <path d="M280 205 C280 175 298 158 320 158 C342 158 360 175 360 205 C360 175 300 172 280 205 Z" fill="#161d30" opacity="0.5"/>
+          <ellipse cx="320" cy="245" rx="46" ry="52" fill="#04060b"/>
+
+          <path d="M225 330 C225 300 260 280 320 280 C380 280 415 300 415 330 L415 392 L225 392 Z" fill="url(#hoodieShade)" stroke="#1c2740" stroke-width="1.5"/>
+
+          <rect x="235" y="330" width="26" height="16" rx="8" fill="#0b0f1a" transform="rotate(-18 248 338)"/>
+          <rect x="380" y="330" width="26" height="16" rx="8" fill="#0b0f1a" transform="rotate(18 393 338)"/>
+
+          <g transform="translate(230,300)">
+            <polygon points="0,90 20,10 160,10 180,90" fill="#0b0f1a" stroke="#1c2740" stroke-width="2"/>
+            <polygon points="20,10 160,10 152,82 28,82" fill="url(#screenGlow)" opacity="0.85"/>
+            <rect x="34" y="24" width="60" height="4" rx="2" fill="#04121a" opacity="0.55"/>
+            <rect x="34" y="34" width="90" height="4" rx="2" fill="#04121a" opacity="0.4"/>
+            <rect x="34" y="44" width="40" height="4" rx="2" fill="#04121a" opacity="0.55"/>
+            <rect x="34" y="54" width="75" height="4" rx="2" fill="#04121a" opacity="0.35"/>
+            <rect x="0" y="88" width="180" height="10" rx="3" fill="#111827"/>
+          </g>
+
+          <text x="230" y="80" font-family="Orbitron, monospace" font-size="10" fill="#4dffb4" opacity="0.4">01001011</text>
+          <text x="410" y="440" font-family="Orbitron, monospace" font-size="10" fill="#ffb703" opacity="0.4">encrypt()</text>
+        </svg>
+      </div>
+      <div class="threat-copy reveal">
+        <span class="kicker">// Meet The Threat</span>
+        <h3>It's rarely "personal" — it's automatic.</h3>
+        <p>Most attacks aren't a hacker sitting there choosing you specifically. They're <strong>automated scripts, bulk messages, and fake pop-ups</strong> cast out to thousands of people at once, hoping just a few will click, panic, or trust the wrong thing.</p>
+        <p>But when one of those messages succeeds, the damage is very personal — lost money, a hijacked account, or a violated sense of privacy. That's exactly why recognising the pattern matters more than trying to spot "the hacker."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ STATS ============ -->
 <section id="numbers">
   <div class="wrap">
@@ -578,6 +729,43 @@
   </div>
 </section>
 
+<!-- ============ ATTACK TECHNIQUES ============ -->
+<section id="techniques">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">// Going Deeper</span>
+      <h2>The techniques behind the tricks</h2>
+      <p>Different cyber crimes often rely on the same underlying techniques. Recognising these makes almost any scam easier to spot.</p>
+    </div>
+    <div class="techniques-grid">
+      <div class="type-card reveal" style="--accent: var(--magenta)">
+        <div class="type-icon">🎭</div>
+        <h4>Social Engineering</h4>
+        <p>Manipulating a person psychologically into handing over information, rather than breaking through technical security at all.</p>
+        <div class="type-example"><b>Example:</b> A caller pretending to be "IT support," asking for your password.</div>
+      </div>
+      <div class="type-card reveal" style="--accent: var(--amber)">
+        <div class="type-icon">🔁</div>
+        <h4>Brute-Force Attacks</h4>
+        <p>Software that automatically tries millions of password combinations per second until one happens to work.</p>
+        <div class="type-example"><b>Defence:</b> Long, unique passwords make this take years, not seconds.</div>
+      </div>
+      <div class="type-card reveal" style="--accent: var(--cyan)">
+        <div class="type-icon">📡</div>
+        <h4>Man-in-the-Middle</h4>
+        <p>An attacker secretly sits between you and a website — often over unsecured public Wi-Fi — quietly reading data as it travels.</p>
+        <div class="type-example"><b>Defence:</b> Avoid sensitive logins on public/free Wi-Fi networks.</div>
+      </div>
+      <div class="type-card reveal" style="--accent: var(--violet)">
+        <div class="type-icon">🎪</div>
+        <h4>Spoofing</h4>
+        <p>Faking a caller ID, sender email, or website address so it looks exactly like it's from a trusted bank, friend, or company.</p>
+        <div class="type-example"><b>Defence:</b> Double-check the actual number/address, not just the display name.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ ANATOMY OF AN ATTACK ============ -->
 <section id="anatomy">
   <div class="wrap">
@@ -661,6 +849,56 @@
   </div>
 </section>
 
+<!-- ============ MYTHS VS FACTS ============ -->
+<section id="myths">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">// Tap To Reveal</span>
+      <h2>Myths vs. facts</h2>
+      <p>Tap or click any card to flip it and see the truth behind common cyber-safety myths.</p>
+    </div>
+    <div class="myth-grid">
+      <div class="flip-card reveal" tabindex="0" role="button" aria-label="Flip card">
+        <div class="flip-inner">
+          <div class="flip-front"><span class="tag">MYTH</span><p>Only careless people fall for scams.</p></div>
+          <div class="flip-back"><span class="tag">FACT</span><p>Scams are professionally designed to create urgency and panic — they can fool careful, tech-savvy people too, especially on a rushed day.</p></div>
+        </div>
+      </div>
+      <div class="flip-card reveal" tabindex="0" role="button" aria-label="Flip card">
+        <div class="flip-inner">
+          <div class="flip-front"><span class="tag">MYTH</span><p>If a website looks professional, it must be safe.</p></div>
+          <div class="flip-back"><span class="tag">FACT</span><p>Fake websites can be copied pixel-for-pixel from the real one in minutes. Always check the actual URL, not just the design.</p></div>
+        </div>
+      </div>
+      <div class="flip-card reveal" tabindex="0" role="button" aria-label="Flip card">
+        <div class="flip-inner">
+          <div class="flip-front"><span class="tag">MYTH</span><p>Antivirus software makes me completely safe.</p></div>
+          <div class="flip-back"><span class="tag">FACT</span><p>Antivirus helps, but most scams target human trust, not software bugs. No tool replaces staying alert.</p></div>
+        </div>
+      </div>
+      <div class="flip-card reveal" tabindex="0" role="button" aria-label="Flip card">
+        <div class="flip-inner">
+          <div class="flip-front"><span class="tag">MYTH</span><p>I'm too young to be a target.</p></div>
+          <div class="flip-back"><span class="tag">FACT</span><p>Students are frequent targets precisely because they're active across many apps and platforms every day.</p></div>
+        </div>
+      </div>
+      <div class="flip-card reveal" tabindex="0" role="button" aria-label="Flip card">
+        <div class="flip-inner">
+          <div class="flip-front"><span class="tag">MYTH</span><p>Once I've shared information, there's nothing I can do.</p></div>
+          <div class="flip-back"><span class="tag">FACT</span><p>Acting fast — changing passwords, alerting your bank, reporting to 1930 — can limit or even reverse the damage.</p></div>
+        </div>
+      </div>
+      <div class="flip-card reveal" tabindex="0" role="button" aria-label="Flip card">
+        <div class="flip-inner">
+          <div class="flip-front"><span class="tag">MYTH</span><p>Cybercrime only happens between strangers.</p></div>
+          <div class="flip-back"><span class="tag">FACT</span><p>Many cases start with someone's own account being hijacked and used to trick their friends and classmates.</p></div>
+        </div>
+      </div>
+    </div>
+    <p class="flip-hint">👆 Click any card above</p>
+  </div>
+</section>
+
 <!-- ============ PREVENTION ============ -->
 <section id="prevent">
   <div class="wrap">
@@ -697,6 +935,66 @@
         </ul>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ============ PASSWORD STRENGTH CHECKER ============ -->
+<section id="password-check">
+  <div class="wrap">
+    <div class="section-head reveal" style="text-align:center; max-width:56ch; margin-inline:auto;">
+      <span class="kicker">// Try It Yourself</span>
+      <h2>How strong is a password like yours?</h2>
+      <p>Type an example password style below and watch the strength meter react live.</p>
+    </div>
+    <div class="pw-shell reveal">
+      <div class="pw-note">⚠ For your safety, never type a password you actually use into any website — including this one. Try a similar-style example instead.</div>
+      <div class="pw-input-row">
+        <input type="password" id="pwInput" placeholder="Type an example password to test..." autocomplete="off">
+        <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password">👁</button>
+      </div>
+      <div class="pw-meter-track"><div class="pw-meter-fill" id="pwMeterFill"></div></div>
+      <span class="pw-label" id="pwLabel">Start typing to see your strength score</span>
+      <ul class="pw-checks">
+        <li id="chk-len"><span class="ico">✕</span> At least 10 characters</li>
+        <li id="chk-upper"><span class="ico">✕</span> Upper &amp; lowercase letters</li>
+        <li id="chk-num"><span class="ico">✕</span> Contains a number</li>
+        <li id="chk-sym"><span class="ico">✕</span> Contains a symbol (!@#$…)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CYBER LAWS ============ -->
+<section id="laws">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">// Know The Law</span>
+      <h2>Cyber crime isn't just risky — it's illegal</h2>
+      <p>In India, the Information Technology Act, 2000 makes many of these actions punishable offences, whether committed against a stranger or a classmate.</p>
+    </div>
+    <div class="laws-list">
+      <div class="laws-row reveal">
+        <span class="laws-badge">Sec. 43</span>
+        <p><strong>Unauthorised access or damage</strong> to someone's computer, data, or network can lead to compensation claims against the offender.</p>
+      </div>
+      <div class="laws-row reveal">
+        <span class="laws-badge">Sec. 66</span>
+        <p><strong>Hacking</strong> — dishonestly gaining access to or damaging another person's computer resource — is a punishable offence.</p>
+      </div>
+      <div class="laws-row reveal">
+        <span class="laws-badge">Sec. 66C</span>
+        <p><strong>Identity theft</strong> — dishonestly using someone else's password, signature, or identifying feature — carries legal penalties.</p>
+      </div>
+      <div class="laws-row reveal">
+        <span class="laws-badge">Sec. 66D</span>
+        <p><strong>Cheating by impersonation</strong> using a computer resource, such as fake profiles or phishing scams, is specifically punishable.</p>
+      </div>
+      <div class="laws-row reveal">
+        <span class="laws-badge">Sec. 67</span>
+        <p><strong>Publishing or sharing obscene material</strong> electronically is a criminal offence under the Act.</p>
+      </div>
+    </div>
+    <p class="laws-note">This is a simplified overview for awareness purposes, not legal advice. Full details are available on the official Government of India cyber law resources.</p>
   </div>
 </section>
 
@@ -783,7 +1081,7 @@
 <footer>
   <div class="wrap foot-grid">
     <div class="brand"><span class="brand-mark" style="width:26px;height:26px;font-size:13px;">🛡</span> CyberSafe</div>
-    <p class="foot-note">Educational content only — always talk to a parent, teacher, or trusted adult if something online feels unsafe.</p>
+    <p class="foot-note">Created for a school cyber-safety outreach program (grades 9–10). Educational content only — always talk to a parent, teacher, or trusted adult if something online feels unsafe.</p>
   </div>
   <div class="wrap">
     <p class="footer-quote">Made with <span class="heart">♥</span> by Anish Prabhu</p>
@@ -1084,6 +1382,17 @@
 
   var letters = ['A','B','C','D'];
 
+  function shuffle(array){
+    var arr = array.slice();
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  var currentOrder = [];
+
   function renderQuestion(){
     answered = false;
     var item = questions[idx];
@@ -1094,11 +1403,14 @@
     nextBtn.disabled = true;
     nextBtn.textContent = (idx === questions.length - 1) ? 'See My Score →' : 'Next Question →';
 
-    item.opts.forEach(function(optText, i){
+    // shuffle option order each time this question is shown
+    currentOrder = shuffle(item.opts.map(function(_, i){ return i; }));
+
+    currentOrder.forEach(function(origIndex, displayIndex){
       var btn = document.createElement('button');
       btn.className = 'q-opt';
-      btn.innerHTML = '<span class="letter">' + letters[i] + '</span><span>' + optText + '</span>';
-      btn.addEventListener('click', function(){ selectAnswer(i, btn); });
+      btn.innerHTML = '<span class="letter">' + letters[displayIndex] + '</span><span>' + item.opts[origIndex] + '</span>';
+      btn.addEventListener('click', function(){ selectAnswer(origIndex, btn); });
       qOptions.appendChild(btn);
     });
 
@@ -1107,19 +1419,21 @@
     qScorePill.textContent = 'Score: ' + score;
   }
 
-  function selectAnswer(i, btnEl){
+  function selectAnswer(origIndex, btnEl){
     if(answered) return;
     answered = true;
     var item = questions[idx];
     var allBtns = qOptions.querySelectorAll('.q-opt');
     allBtns.forEach(function(b){ b.disabled = true; });
 
-    if(i === item.correct){
+    var correctDisplayPos = currentOrder.indexOf(item.correct);
+
+    if(origIndex === item.correct){
       btnEl.classList.add('correct');
       score++;
     } else {
       btnEl.classList.add('wrong');
-      allBtns[item.correct].classList.add('correct');
+      allBtns[correctDisplayPos].classList.add('correct');
     }
     qExplain.textContent = item.explain;
     qExplain.style.display = 'block';
@@ -1183,6 +1497,68 @@
       fbForm.reset();
       fbThanks.style.display = 'none';
       fbForm.style.display = 'block';
+    });
+  }
+
+  /* ---------- myth/fact flip cards ---------- */
+  var flipCards = document.querySelectorAll('.flip-card');
+  flipCards.forEach(function(card){
+    function toggle(){ card.classList.toggle('flipped'); }
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+    });
+  });
+
+  /* ---------- password strength checker ---------- */
+  var pwInput = document.getElementById('pwInput');
+  var pwToggle = document.getElementById('pwToggle');
+  var pwMeterFill = document.getElementById('pwMeterFill');
+  var pwLabel = document.getElementById('pwLabel');
+  if(pwInput){
+    pwToggle.addEventListener('click', function(){
+      var isPw = pwInput.type === 'password';
+      pwInput.type = isPw ? 'text' : 'password';
+      pwToggle.textContent = isPw ? '🙈' : '👁';
+    });
+
+    var checks = {
+      len: document.getElementById('chk-len'),
+      upper: document.getElementById('chk-upper'),
+      num: document.getElementById('chk-num'),
+      sym: document.getElementById('chk-sym')
+    };
+
+    function setCheck(el, ok){
+      el.classList.toggle('ok', ok);
+      el.querySelector('.ico').textContent = ok ? '✓' : '✕';
+    }
+
+    pwInput.addEventListener('input', function(){
+      var v = pwInput.value;
+      var okLen = v.length >= 10;
+      var okUpperLower = /[a-z]/.test(v) && /[A-Z]/.test(v);
+      var okNum = /[0-9]/.test(v);
+      var okSym = /[^a-zA-Z0-9]/.test(v);
+
+      setCheck(checks.len, okLen);
+      setCheck(checks.upper, okUpperLower);
+      setCheck(checks.num, okNum);
+      setCheck(checks.sym, okSym);
+
+      var score4 = [okLen, okUpperLower, okNum, okSym].filter(Boolean).length;
+      var pct = v.length === 0 ? 0 : Math.max(12, score4 / 4 * 100);
+      var color, label;
+      if(v.length === 0){ color = 'rgba(255,255,255,.1)'; label = 'Start typing to see your strength score'; }
+      else if(score4 <= 1){ color = 'var(--danger)'; label = '🔴 Weak — easy for attackers to guess'; }
+      else if(score4 === 2){ color = 'var(--amber)'; label = '🟠 Fair — could still be cracked quickly'; }
+      else if(score4 === 3){ color = 'var(--cyan)'; label = '🔵 Good — a solid, reasonably strong password'; }
+      else { color = 'var(--safe)'; label = '🟢 Strong — hard to guess or brute-force'; }
+
+      pwMeterFill.style.width = pct + '%';
+      pwMeterFill.style.background = color;
+      pwLabel.textContent = label;
+      pwLabel.style.color = v.length === 0 ? 'var(--text-dim)' : color;
     });
   }
 })();
